@@ -1,0 +1,64 @@
+crate=rslash
+crates_dir=../rusthub/src/rust/crates
+dep_crates=[]
+
+target test {
+	dependency{target(compile test)}
+	dependency{}
+	exec test (~args~)
+}
+
+target compile test:. {
+   dependency{ target(right_slash)}
+   dependency {
+       or {
+       anynewer(bee.7b,test)
+       anynewer(${~cwd~}/test.rs,${~cwd~}test)
+       anynewer(${crates_dir}/lib${crate}.rlib,${~cwd~}test)
+       }
+   }
+
+   display(Compiling test ...)
+   exec rustc::  (
+       --color, always,
+       -L,all=${crates_dir},
+       --extern, rslash,
+       -o,
+       test,
+       test.rs
+   )
+   if {
+      neq(~~, 0)
+      then {
+        panic("the test compilation error(s)")
+      }
+   }
+}
+
+
+target right_slash:. {
+    dependency{
+       or {
+    	 anynewer(${~cwd~}/*.rs,${crates_dir}/lib${crate}.rlib)
+    	 anynewer(${~cwd~}/bee.7b,${crates_dir}/lib${crate}.rlib)
+       }
+    }
+	display(Building crate ${crate} in ${crates_dir}/lib${crate}.rlib)
+	exec rustc::  (
+	  --color, always,
+	 -C, opt-level=2,
+	 -L, crates_dir,
+	 --crate-type=lib,
+	 --edition, 2021,
+	 dep_crates,
+	 --crate-name, crate,
+    --out-dir, crates_dir,
+     lib.rs
+   )
+   if {
+         neq(${~~}, 0)
+         then {
+            panic("${crate} compilation error(s)")
+         }
+   }
+}
