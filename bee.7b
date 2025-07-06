@@ -1,5 +1,8 @@
 crate=rslash
-crates_dir=../rusthub/src/rust/crates
+main=lib
+comp opts=[]
+common =..${~/~}simscript${~/~}comm-crate.7b:file
+crate_dir=..${~/~}crates
 dep_crates=[]
 
 target test {
@@ -35,30 +38,4 @@ target compile test:. {
    }
 }
 
-
-target right_slash:. {
-    dependency{
-       or {
-    	 anynewer(${~cwd~}/*.rs,${crates_dir}/lib${crate}.rlib)
-    	 anynewer(${~cwd~}/bee.7b,${crates_dir}/lib${crate}.rlib)
-       }
-    }
-	display(Building crate ${crate} in ${crates_dir}/lib${crate}.rlib)
-	exec rustc::  (
-	  --color, always,
-	 -C, opt-level=2,
-	 -L, crates_dir,
-	 --crate-type=lib,
-	 --edition, 2021,
-	 dep_crates,
-	 --crate-name, crate,
-    --out-dir, crates_dir,
-     lib.rs
-   )
-   if {
-         neq(${~~}, 0)
-         then {
-            panic("${crate} compilation error(s)")
-         }
-   }
-}
+include(common);
