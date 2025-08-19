@@ -1,5 +1,5 @@
 crate=rslash
-main=lib
+crate main=lib
 comp opts=[]
 common =..${~/~}simscript${~/~}comm-crate.7b:file
 crate_dir=..${~/~}crates
